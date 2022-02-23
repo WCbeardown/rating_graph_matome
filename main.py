@@ -88,6 +88,48 @@ for j in range(5):
 nen_heikin_matome = pd.DataFrame(temp,columns = matome)
 st.dataframe(nen_heikin_matome)
 
+#分析まとめの表示
+st.write('分析データ')
+seiseki=[]
+date=[]
+i=0
+for i in range(5):
+    seiseki.append(rating_data[rating_data["会員番号"] == kaiin[i]])
+
+for i in range(5):
+    date.append([datetime.datetime.strptime(s,'%Y-%m-%d') for s in seiseki[i]["日付"]])
+
+#st.table(seiseki[0])
+
+stats=[]
+temp =[]
+for j in range(5):
+    agaru = 0
+    sagaru = 0
+    agaruhi ='2000-01-01'
+    sagaruhi ='2000-01-01'
+    i=0
+    for i in range (len(seiseki[j])-1):
+        if -(seiseki[j]["レイティング"].iloc[i]-seiseki[j]["レイティング"].iloc[i+1])>agaru:
+            agaru = -(seiseki[j]["レイティング"].iloc[i]-seiseki[j]["レイティング"].iloc[i+1])
+            agaruhi = seiseki[j]["日付"].iloc[i+1]
+        elif -(seiseki[j]["レイティング"].iloc[i]-seiseki[j]["レイティング"].iloc[i+1])<sagaru:
+            sagaru = -(seiseki[j]["レイティング"].iloc[i]-seiseki[j]["レイティング"].iloc[i+1])
+            sagaruhi = seiseki[j]["日付"].iloc[i+1]
+        #print(agaru,sagaru,agaruhi,sagaruhi)
+    if  len(seiseki[j])>1:   
+        temp=[seiseki[j]["会員番号"].iloc[0],len(seiseki[j]),seiseki[j]["レイティング"].min()
+                ,seiseki[j][seiseki[j]["レイティング"] == seiseki[j]["レイティング"].min()]["日付"].iloc[0]
+                ,seiseki[j]["レイティング"].max()
+                ,seiseki[j][seiseki[j]["レイティング"] == seiseki[j]["レイティング"].max()]["日付"].iloc[0]
+                ,agaru,agaruhi,sagaru,sagaruhi
+            ]
+    else:
+        temp=[kaiin[j],0,0,'2000-01-01',0,'2000-01-01',0,'2000-01-01',0,'2000-01-01']         
+    stats.append(temp)
+stats_matome = pd.DataFrame(stats,columns = ["会員番号","出場回数","最低値","最低日","最高値","最高日","最大UP","UP日","最大DOWN","DOWN日"])
+st.table(stats_matome)
+
 #個人データの表示
 rating_data=rating_data.set_index('場所')
 
