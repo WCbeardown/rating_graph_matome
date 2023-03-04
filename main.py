@@ -26,7 +26,7 @@ kaiin[3] = st.sidebar.number_input("4人目の会員番号",50000,3000000,180222
 kaiin[4] = st.sidebar.number_input("5人目の会員番号",50000,3000000,1802222)
 #年間まとめの計算開始と終了年の入力
 year_s = st.sidebar.number_input("開始年",2000,2030,2018)
-year_l = st.sidebar.number_input("終了年",2000,2030,2022)
+year_l = st.sidebar.number_input("終了年",2000,2030,2023)
 
 #会員ごとにデータをrating[]に格納
 rating = [[],[],[],[],[]]
