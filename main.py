@@ -26,7 +26,7 @@ kaiin[3] = st.sidebar.number_input("4人目の会員番号",50000,3000000,180222
 kaiin[4] = st.sidebar.number_input("5人目の会員番号",50000,3000000,1802222)
 #年間まとめの計算開始と終了年の入力
 year_s = st.sidebar.number_input("開始年",2000,2030,2018)
-year_l = st.sidebar.number_input("終了年",2000,2030,2023)
+year_l = st.sidebar.number_input("終了年",2000,2030,2022)
 
 #会員ごとにデータをrating[]に格納
 rating = [[],[],[],[],[]]
@@ -120,6 +120,8 @@ st.table(stats_matome)
 
 #個人データの表示
 rating_data=rating_data.set_index('場所')
+rating_data = rating_data.sort_values('日付', ascending=False)
+
 st.write('1人目の詳細データ')
 st.table(rating_data[rating_data["会員番号"] == kaiin[0]])
 st.write('2人目の詳細データ')
