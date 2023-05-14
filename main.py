@@ -10,6 +10,9 @@ import matplotlib.dates as mdates
 rating_data = pd.read_csv("rating_data_all.csv", index_col=0)
 #更新日
 last = rating_data["日付"].tail(1).item()
+#最新年を覚えておく
+latest_year = int(last[:4])
+#latest_year=2023
 
 #テキスト表示
 st.write('使い方：上の「＞」を押して、会員番号と表示開始年を入力')
@@ -26,7 +29,7 @@ kaiin[3] = st.sidebar.number_input("4人目の会員番号",50000,3000000,180222
 kaiin[4] = st.sidebar.number_input("5人目の会員番号",50000,3000000,1802222)
 #年間まとめの計算開始と終了年の入力
 year_s = st.sidebar.number_input("開始年",2000,2030,2018)
-year_l = st.sidebar.number_input("終了年",2000,2030,2022)
+year_l = st.sidebar.number_input("終了年",2000,2030,latest_year)
 
 #会員ごとにデータをrating[]に格納
 rating = [[],[],[],[],[]]
