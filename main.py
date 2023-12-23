@@ -17,32 +17,33 @@ latest_year = int(last[:4])
 #テキスト表示
 st.write('使い方：上の「＞」を押して、会員番号と表示開始年を入力')
 st.write('レイティング　比較グラフ')
-st.write('羽曳野・若葉・奈良・HPC・神戸・カミのデータのみです')
+st.write('羽曳野・若葉・奈良・HPC・神戸・カミ・向日市のデータのみです')
 st.write('   最終更新日：',last)
 
-#会員番号入力（5人まで）
+#会員番号入力（6人まで）
 kaiin = [1,2,3,4,5]
 kaiin[0] = st.sidebar.number_input("1人目の会員番号",50000,3000000,1802222)
 kaiin[1] = st.sidebar.number_input("2人目の会員番号",50000,3000000,1802222)
 kaiin[2] = st.sidebar.number_input("3人目の会員番号",50000,3000000,1802222)
 kaiin[3] = st.sidebar.number_input("4人目の会員番号",50000,3000000,1802222)
 kaiin[4] = st.sidebar.number_input("5人目の会員番号",50000,3000000,1802222)
+kaiin[5] = st.sidebar.number_input("6人目の会員番号",50000,3000000,1802222)
 #年間まとめの計算開始と終了年の入力
-year_s = st.sidebar.number_input("開始年",2000,2030,2018)
-year_l = st.sidebar.number_input("終了年",2000,2030,latest_year)
+year_s = st.sidebar.number_input("開始年",2000,2040,2019)
+year_l = st.sidebar.number_input("終了年",2000,2040,latest_year)
 
 #会員ごとにデータをrating[]に格納
-rating = [[],[],[],[],[]]
-for i in range(5):
+rating = [[],[],[],[],[],[]]
+for i in range(6):
     rating[i] = rating_data[rating_data["会員番号"] == kaiin[i]]
 #グラフの日付の設定
 date=[]
-for i in range(5):
+for i in range(6):
     date.append([datetime.datetime.strptime(s,'%Y-%m-%d') for s in rating[i]["日付"]])
 
 colorlist = ["r", "g", "b", "c", "m", "y", "k", "w"]
 fig, ax = plt.subplots()
-for j in range(5):
+for j in range(6):
     ax.plot(date[j], rating[j]["レイティング"], color=colorlist[j], marker="o", linestyle="solid",label = kaiin[j])
 
 #グラフ書式
@@ -73,7 +74,7 @@ matome=["会員番号"]
 for s in range(year_s,year_l+1):
     matome.append(s)
 temp=[]
-for j in range(5):
+for j in range(6):
     nen_heikin=[kaiin[j]]
     for k in range(year_s,year_l+1):
         try:
@@ -89,13 +90,13 @@ st.write('分析データ')
 seiseki=[]
 date=[]
 i=0
-for i in range(5):
+for i in range(6):
     seiseki.append(rating_data[rating_data["会員番号"] == kaiin[i]])
-for i in range(5):
+for i in range(6):
     date.append([datetime.datetime.strptime(s,'%Y-%m-%d') for s in seiseki[i]["日付"]])
 stats=[]
 temp =[]
-for j in range(5):
+for j in range(6):
     agaru = 0
     sagaru = 0
     agaruhi ='2000-01-01'
@@ -135,3 +136,5 @@ st.write('4人目の詳細データ')
 st.table(rating_data[rating_data["会員番号"] == kaiin[3]])
 st.write('5人目の詳細データ')
 st.table(rating_data[rating_data["会員番号"] == kaiin[4]])
+st.write('6人目の詳細データ')
+st.table(rating_data[rating_data["会員番号"] == kaiin[5]])
