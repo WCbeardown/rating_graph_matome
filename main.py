@@ -20,7 +20,7 @@ st.write('レイティング　比較グラフ')
 st.write('羽曳野・若葉・奈良・HPC・神戸・カミ・向日市のデータのみです')
 st.write('   最終更新日：',last)
 
-st.write(plt.style.available)
+#st.write(plt.style.available)
 
 #会員番号入力（6人まで）
 kaiin = [1,2,3,4,5,6]
