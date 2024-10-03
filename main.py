@@ -1,5 +1,3 @@
-pip install seaborn
-
 import streamlit as st
 import numpy as np 
 import pandas as pd
@@ -7,8 +5,6 @@ import requests
 import datetime 
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-
-print(plt.style.available)
 
 #データ読み込み
 rating_data = pd.read_csv("rating_data_all.csv", index_col=0)
@@ -23,6 +19,8 @@ st.write('使い方：上の「＞」を押して、会員番号と表示開始�
 st.write('レイティング　比較グラフ')
 st.write('羽曳野・若葉・奈良・HPC・神戸・カミ・向日市のデータのみです')
 st.write('   最終更新日：',last)
+
+st.write(plt.style.available)
 
 #会員番号入力（6人まで）
 kaiin = [1,2,3,4,5,6]
