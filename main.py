@@ -50,7 +50,7 @@ for j in range(6):
 
 #グラフ書式
 #plt.style.use('seaborn-dark-palette')
-plt.style.use('seaborn-dark')
+plt.style.use('seaborn-v0_8')
 plt.rcParams["font.size"] = 24
 plt.tick_params(labelsize=18)
 ax.set_title("Rating Graph", fontsize=30)
