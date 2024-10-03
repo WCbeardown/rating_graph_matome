@@ -6,6 +6,8 @@ import datetime
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
+print(plt.style.available)
+
 #データ読み込み
 rating_data = pd.read_csv("rating_data_all.csv", index_col=0)
 #更新日
