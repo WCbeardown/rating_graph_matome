@@ -65,6 +65,8 @@ dates = mdates.YearLocator()
 dates_fmt = mdates.DateFormatter('%Y')
 ax.xaxis.set_major_locator(dates)
 ax.xaxis.set_major_formatter(dates_fmt)
+ax.set_xlim([datetime.datetime(year_s, 1, 1), datetime.datetime(year_l, 12, 31)])  # X軸の範囲を指定
+
 # x軸に補助目盛線を設定
 ax.grid(which = "major", axis = "x", color = "green", alpha = 0.8,linestyle = "--", linewidth = 2)
 # y軸に目盛線を設定
