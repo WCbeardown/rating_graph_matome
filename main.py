@@ -17,7 +17,7 @@ latest_year = int(last[:4])
 #テキスト表示
 st.write('使い方：上の「＞」を押して、会員番号と表示開始年を入力')
 st.write('レイティング　比較グラフ')
-st.write('羽曳野・若葉・奈良・HPC・神戸・カミ・向日市のデータのみです')
+st.write('羽曳野(除く286)・若葉・奈良・HPC・神戸・カミ・向日市のデータのみです')
 st.write('   最終更新日：',last)
 
 #st.write(plt.style.available)
