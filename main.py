@@ -107,15 +107,16 @@ st.dataframe(nen_heikin_matome)
 # 時刻を抜く
 rating_data["日付"] = rating_data["日付"].dt.strftime('%Y-%m-%d')
 
+
 # 分析まとめの表示
 st.write('分析データ')
 seiseki = []
 date = []
 for i in range(6):
-    seiseki.append(rating_data[rating_data["会員番号"] == kaiin[i]])
-
-for i in range(6):
-    date.append(seiseki[i]["日付"].dropna().tolist())
+    seiseki_data = rating_data[rating_data["会員番号"] == kaiin[i]]
+    seiseki_data = seiseki_data.sort_values("日付")  # ← ★★★ ここで日付順にソート！
+    seiseki.append(seiseki_data)
+    date.append(seiseki_data["日付"].dropna().tolist())
 
 stats = []
 for j in range(6):
