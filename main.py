@@ -14,9 +14,6 @@ rating_data["日付"] = rating_data["日付"].astype(str).str.replace('/', '-', 
 
 # 【修正】すべての形式に対応して datetime 型へ変換
 rating_data["日付"] = pd.to_datetime(rating_data["日付"], format='%Y-%m-%d', errors='coerce')
-# 時刻を抜く
-rating_data["日付"] = rating_data["日付"].dt.strftime('%Y-%m-%d')
-
 
 # 【修正】変換できなかった行（NaT）を除外
 #rating_data = rating_data.dropna(subset=["日付"])
@@ -25,6 +22,9 @@ rating_data["日付"] = rating_data["日付"].dt.strftime('%Y-%m-%d')
 last = rating_data["日付"].max().strftime('%Y-%m-%d')  # max()のほうが確実
 # 最新年を覚えておく
 latest_year = rating_data["日付"].max().year
+
+# 時刻を抜く
+rating_data["日付"] = rating_data["日付"].dt.strftime('%Y-%m-%d')
 
 # テキスト表示
 st.write('使い方：上の「＞」を押して、会員番号と表示開始年を入力')
