@@ -16,10 +16,7 @@ rating_data["日付"] = rating_data["日付"].astype(str).str.replace('/', '-', 
 rating_data["日付"] = pd.to_datetime(rating_data["日付"], format='%Y-%m-%d', errors='coerce')
 
 # 【修正】変換できなかった行（NaT）を除外
-rating_data = rating_data.dropna(subset=["日付"])
-
-# 【オプション】日付を "YYYY-MM-DD" の文字列に戻したい場合（表示用）
-rating_data["日付"] = rating_data["日付"].dt.strftime('%Y-%m-%d')
+#rating_data = rating_data.dropna(subset=["日付"])
 
 # 更新日（最後の行の日付を文字列に変換）
 last = rating_data["日付"].max().strftime('%Y-%m-%d')  # max()のほうが確実
