@@ -9,10 +9,16 @@ import matplotlib.dates as mdates
 # データ読み込み
 rating_data = pd.read_csv("rating_data_all.csv", index_col=0)
 
-# 更新日
-last = rating_data["日付"].tail(1).item()
+# 【修正点①】日付を datetime 型に統一（ハイフン・スラッシュ混在対応）
+rating_data["日付"] = pd.to_datetime(rating_data["日付"], errors="coerce")  # 変換失敗は NaT
+
+# 【修正点②】NaT（日付変換できなかった行）を除外
+rating_data = rating_data.dropna(subset=["日付"])
+
+# 更新日（最後の行の日付を文字列に変換）
+last = rating_data["日付"].max().strftime('%Y-%m-%d')  # max()のほうが確実
 # 最新年を覚えておく
-latest_year = int(last[:4])
+latest_year = rating_data["日付"].max().year
 
 # テキスト表示
 st.write('使い方：上の「＞」を押して、会員番号と表示開始年を入力')
