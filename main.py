@@ -46,6 +46,10 @@ year_l = st.sidebar.number_input("終了年", 2000, 2040, latest_year)
 rating = [[], [], [], [], [], []]
 for i in range(6):
     rating[i] = rating_data[rating_data["会員番号"] == kaiin[i]]
+    
+# 🔽 ここでソートを追加！
+for i in range(6):
+    rating[i] = rating[i].sort_values("日付")
 
 # グラフの日付の設定（空白除外対応）
 date = []
