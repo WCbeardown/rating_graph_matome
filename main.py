@@ -50,13 +50,7 @@ for i in range(6):
 # グラフの日付の設定（空白除外対応）
 date = []
 for i in range(6):
-    date_strs = rating[i]["日付"].dropna()  # NaN を除外
-    try:
-        date_parsed = [datetime.datetime.strptime(s, '%Y-%m-%d') for s in date_strs]
-    except Exception as e:
-        st.error(f"{kaiin[i]} の日付変換中にエラー: {e}")
-        date_parsed = []
-    date.append(date_parsed)
+    date.append(rating[i]["日付"].dropna().tolist())  # そのままリスト化するだけでOK
 
 # グラフ作成
 colorlist = ["r", "g", "b", "c", "m", "y", "k", "w"]
@@ -112,13 +106,7 @@ for i in range(6):
     seiseki.append(rating_data[rating_data["会員番号"] == kaiin[i]])
 
 for i in range(6):
-    date_strs = seiseki[i]["日付"].dropna()
-    try:
-        parsed = [datetime.datetime.strptime(s, '%Y-%m-%d') for s in date_strs]
-    except Exception as e:
-        st.error(f"分析用の日付変換エラー（{kaiin[i]}）: {e}")
-        parsed = []
-    date.append(parsed)
+    date.append(seiseki[i]["日付"].dropna().tolist())
 
 stats = []
 for j in range(6):
