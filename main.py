@@ -23,9 +23,6 @@ last = rating_data["日付"].max().strftime('%Y-%m-%d')  # max()のほうが確�
 # 最新年を覚えておく
 latest_year = rating_data["日付"].max().year
 
-# 時刻を抜く
-rating_data["日付"] = rating_data["日付"].dt.strftime('%Y-%m-%d')
-
 # テキスト表示
 st.write('使い方：上の「＞」を押して、会員番号と表示開始年を入力')
 st.write('レイティング　比較グラフ')
@@ -104,6 +101,11 @@ for j in range(6):
 
 nen_heikin_matome = pd.DataFrame(temp, columns=matome)
 st.dataframe(nen_heikin_matome)
+
+
+
+# 時刻を抜く
+rating_data["日付"] = rating_data["日付"].dt.strftime('%Y-%m-%d')
 
 # 分析まとめの表示
 st.write('分析データ')
