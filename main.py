@@ -14,6 +14,9 @@ rating_data["日付"] = rating_data["日付"].astype(str).str.replace('/', '-', 
 
 # 【修正】すべての形式に対応して datetime 型へ変換
 rating_data["日付"] = pd.to_datetime(rating_data["日付"], format='%Y-%m-%d', errors='coerce')
+# 時刻を抜く
+rating_data["日付"] = rating_data["日付"].dt.strftime('%Y-%m-%d')
+
 
 # 【修正】変換できなかった行（NaT）を除外
 #rating_data = rating_data.dropna(subset=["日付"])
