@@ -25,19 +25,22 @@ except Exception:
 st.write('最終更新日：', last_display)
 st.write('使い方：写真をGoogleレンズでテキスト読み込みした文字列を下の欄に貼り付けてください（番号 会員番号 氏名 レイティングの順）')
 
-# --- ペースト入力 ---
-# session_state の初期化を先に行う
+# --- ペースト入力（修正版） ---
+
+# session_state の初期化
 if "pasted_text" not in st.session_state:
     st.session_state["pasted_text"] = ""
 
+# text_area に初期値をセット
 text_input = st.text_area("参加者リストを貼り付け", value=st.session_state["pasted_text"], height=240)
 
-# ボタン押下時に session_state を更新
+# ボタン
 if st.button("ペースト完了"):
     st.session_state["pasted_text"] = text_input
 
-# ペーストされたテキストを取得
+# 貼り付け内容を取得
 pasted_text = st.session_state["pasted_text"]
+
 
 
 # ---------------- ヘルパー関数（省略せず全部入れています） ----------------
