@@ -38,9 +38,16 @@ rating = [[],[],[],[],[],[]]
 for i in range(6):
     rating[i] = rating_data[rating_data["会員番号"] == kaiin[i]]
 #グラフの日付の設定
-date=[]
+#date=[]
+#for i in range(6):
+#    date.append([datetime.datetime.strptime(s,'%Y-%m-%d') for s in rating[i]["日付"]])
+# グラフの日付の設定（修正版）
+date = []
 for i in range(6):
-    date.append([datetime.datetime.strptime(s,'%Y-%m-%d') for s in rating[i]["日付"]])
+    # "日付" を pandas で datetime 型に変換
+    rating[i]["日付"] = pd.to_datetime(rating[i]["日付"], errors="coerce")
+    date.append(rating[i]["日付"])
+
 
 colorlist = ["r", "g", "b", "c", "m", "y", "k", "w"]
 fig, ax = plt.subplots()
