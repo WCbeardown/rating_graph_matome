@@ -5,6 +5,7 @@ import requests
 import datetime 
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import seaborn as sns  # 追加
 
 #データ読み込み
 rating_data = pd.read_csv("rating_data_all.csv", index_col=0)
@@ -48,7 +49,8 @@ for j in range(6):
 
 #グラフ書式
 #plt.style.use('seaborn-dark-palette')
-plt.style.use('seaborn-darkgrid')   # 推奨（背景が暗めで補助線あり）
+#plt.style.use('seaborn-darkgrid')   # 推奨（背景が暗めで補助線あり）
+sns.set_style("darkgrid")   # seaborn でスタイル設定
 
 plt.rcParams["font.size"] = 24
 plt.tick_params(labelsize=18)
