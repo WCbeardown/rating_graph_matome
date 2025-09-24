@@ -47,7 +47,9 @@ for j in range(6):
     ax.plot(date[j], rating[j]["レイティング"], color=colorlist[j], marker="o", linestyle="solid",label = kaiin[j])
 
 #グラフ書式
-plt.style.use('seaborn-dark-palette')
+#plt.style.use('seaborn-dark-palette')
+plt.style.use('seaborn-darkgrid')   # 推奨（背景が暗めで補助線あり）
+
 plt.rcParams["font.size"] = 24
 plt.tick_params(labelsize=18)
 ax.set_title("Rating Graph", fontsize=30)
