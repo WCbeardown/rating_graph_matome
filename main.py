@@ -32,10 +32,18 @@ if "pasted_text" not in st.session_state:
     st.session_state["pasted_text"] = ""
 
 # text_area に初期値をセット
-text_input = st.text_area("参加者リストを貼り付け", value=st.session_state["pasted_text"], height=240)
+#text_input = st.text_area("参加者リストを貼り付け", value=st.session_state["pasted_text"], height=240)
+
+# 入力欄
+text_input = st.text_area("参加者リストを貼り付け", value=st.session_state["pasted_text"], height=240, key="input_text")
+# 入力を確定するボタン
+if st.button("ペースト完了"):
+    st.session_state["confirmed_text"] = st.session_state["input_text"]
+    st.write("入力を確定しました:", st.session_state["confirmed_text"])
+
 
 # ボタン
-if st.button("ペースト完了"):
+#if st.button("ペースト完了"):
     st.session_state["pasted_text"] = text_input
 
 # 貼り付け内容を取得
@@ -287,160 +295,167 @@ year_l = st.sidebar.number_input("終了年", 2000, 2040, latest_year)
 st.sidebar.write("※開始年/終了年はグラフの表示範囲です")
 
 # ---------------- グラフ描画ボタン（表の下に表示されるように） ----------------
+# グラフ描画ボタン
 if st.button("グラフ描画"):
-    # 優先：parse_member_table で抽出された df_members の会員を使う（最大7人）
-    kaiin = []
-    name_dict = {}
+    if "confirmed_text" in st.session_state:
 
-    if not df_members.empty:
-        # df_members にある会員番号を上から最大7件採用
-        try:
-            kaiin = list(df_members["会員番号"].astype(int))[:7]
-            # name_dict も構築
-            for _, r in df_members.iterrows():
-                try:
-                    kid = int(r["会員番号"])
-                    name_dict[kid] = r["氏名"]
-                except:
-                    continue
-        except Exception:
-            kaiin = []
+    #if st.button("グラフ描画"):
+        # 優先：parse_member_table で抽出された df_members の会員を使う（最大7人）
+        kaiin = []
+        name_dict = {}
 
-    # fallback: 二つ目のコードの抽出方式を使って会員番号を探す（テキストに "1234 name" 形式があれば）
-    if not kaiin and pasted_text:
-        name_dict = extract_name_dict(pasted_text)
-        kaiin = list(name_dict.keys())[:7]
-
-    # グラフ用に rating_data をコピーして氏名を反映
-    rd = rating_data.copy()
-    try:
-        rd["会員番号"] = rd["会員番号"].astype(int)
-    except:
-        pass
-    # 既に name_dict に含まれる名前を反映（ファイルのデータに存在する会員の氏名更新）
-    if name_dict:
-        for kid, nm in name_dict.items():
-            rd.loc[rd["会員番号"] == kid, "氏名"] = nm
-
-    if not kaiin:
-        st.warning("グラフに使用する会員が抽出できませんでした。貼り付けテキストの形式を確認してください。")
-    else:
-        # 会員ごとのデータ
-        rating_list = []
-        for kid in kaiin:
-            df_k = rd[rd["会員番号"] == kid].sort_values("日付")
-            rating_list.append(df_k)
-
-        # グラフ描画
-        fig, ax = plt.subplots()
-        colorlist = ["r", "g", "b", "c", "m", "y", "k"]
-
-        for j, df_k in enumerate(rating_list):
-            date = df_k["日付"]
-            ax.plot(date, df_k["レイティング"], marker="o", linestyle="solid",
-                    label=str(kaiin[j]),  # ★ 凡例を会員番号に
-                    color=colorlist[j % len(colorlist)])
-
-        # 軽微なスタイル設定（ggplot は描画前に使うのが好ましいが最低限の設定）
-        plt.rcParams["font.size"] = 12
-        ax.set_title("Rating Graph", fontsize=18)
-        ax.set_xlabel("date", fontsize=14)
-        ax.set_ylabel("Rating", fontsize=14)
-        ax.legend(loc="upper left", fontsize=10)
-        fig.set_figheight(6)
-        fig.set_figwidth(12)
-
-        dates = mdates.YearLocator()
-        dates_fmt = mdates.DateFormatter('%Y')
-        ax.xaxis.set_major_locator(dates)
-        ax.xaxis.set_major_formatter(dates_fmt)
-        try:
-            ax.set_xlim([datetime.datetime(year_s, 1, 1), datetime.datetime(year_l, 12, 31)])
-        except Exception:
-            pass
-        ax.grid(which="major", axis="x", alpha=0.6, linestyle="--", linewidth=1)
-        ax.grid(which="major", axis="y", alpha=0.6, linestyle="--", linewidth=1)
-        st.pyplot(fig)
-
-        # 年平均まとめ
-        st.write('レイティング　年平均比較表')
-        matome = ["会員番号", "氏名"] + list(range(year_s, year_l + 1))
-        temp = []
-        for j, df_k in enumerate(rating_list):
-            nen_heikin = [kaiin[j], name_dict.get(kaiin[j], rd.loc[rd["会員番号"] == kaiin[j], "氏名"].iat[0] if not name_dict.get(kaiin[j]) and not rd.loc[rd["会員番号"] == kaiin[j], "氏名"].empty else name_dict.get(kaiin[j], "不明"))]
-            for k in range(year_s, year_l + 1):
-                try:
-                    nen_heikin.append(int(df_k[pd.DatetimeIndex(df_k["日付"]).year == k]["レイティング"].mean()))
-                except:
-                    nen_heikin.append(0)
-            temp.append(nen_heikin)
-        nen_heikin_matome = pd.DataFrame(temp, columns=matome)
-        st.dataframe(nen_heikin_matome)
-
-        # 分析まとめ
-        st.write('分析データ')
-        stats = []
-        for j, df_k in enumerate(rating_list):
-            agaru = 0
-            sagaru = 0
-            agaruhi = pd.NaT
-            sagaruhi = pd.NaT
-            for i in range(len(df_k) - 1):
-                try:
-                    diff = int(df_k["レイティング"].iloc[i+1]) - int(df_k["レイティング"].iloc[i])
-                except Exception:
-                    continue
-                if diff > agaru:
-                    agaru = diff
-                    agaruhi = df_k["日付"].iloc[i+1]
-                if diff < sagaru:
-                    sagaru = diff
-                    sagaruhi = df_k["日付"].iloc[i+1]
-            if len(df_k) > 0:
-                try:
-                    min_val = int(df_k["レイティング"].min())
-                    min_date = df_k[df_k["レイティング"] == df_k["レイティング"].min()]["日付"].iloc[0]
-                except:
-                    min_val = 0
-                    min_date = pd.NaT
-                try:
-                    max_val = int(df_k["レイティング"].max())
-                    max_date = df_k[df_k["レイティング"] == df_k["レイティング"].max()]["日付"].iloc[0]
-                except:
-                    max_val = 0
-                    max_date = pd.NaT
-                temp = [
-                    kaiin[j],
-                    name_dict.get(kaiin[j], rd.loc[rd["会員番号"] == kaiin[j], "氏名"].iat[0] if not name_dict.get(kaiin[j]) and not rd.loc[rd["会員番号"] == kaiin[j], "氏名"].empty else "不明"),
-                    len(df_k),
-                    min_val,
-                    min_date,
-                    max_val,
-                    max_date,
-                    agaru, agaruhi, sagaru, sagaruhi
-                ]
-            else:
-                temp = [kaiin[j], name_dict.get(kaiin[j], "不明"),
-                        0, 0, pd.NaT, 0, pd.NaT,
-                        0, pd.NaT, 0, pd.NaT]
-            stats.append(temp)
-
-        stats_matome = pd.DataFrame(stats, columns=[
-            "会員番号","氏名","出場回数","最低値","最低日","最高値","最高日",
-            "最大UP","UP日","最大DOWN","DOWN日"
-        ])
-        for col in ["最低日","最高日","UP日","DOWN日"]:
+        if not df_members.empty:
+            # df_members にある会員番号を上から最大7件採用
             try:
-                stats_matome[col] = pd.to_datetime(stats_matome[col]).dt.strftime('%Y-%m-%d')
-            except:
-                stats_matome[col] = stats_matome[col].astype(str)
-        st.table(stats_matome)
+                kaiin = list(df_members["会員番号"].astype(int))[:7]
+                # name_dict も構築
+                for _, r in df_members.iterrows():
+                    try:
+                        kid = int(r["会員番号"])
+                        name_dict[kid] = r["氏名"]
+                    except:
+                        continue
+            except Exception:
+                kaiin = []
 
-        # 個人データの表示（最新順）
-        rating_data_disp = rd.copy()
-        rating_data_disp["日付"] = rating_data_disp["日付"].dt.strftime('%Y-%m-%d')
-        rating_data_disp = rating_data_disp.sort_values('日付', ascending=False)
-        for idx, kid in enumerate(kaiin):
-            name = name_dict.get(kid, str(kid))
-            st.write(f'{name} の詳細データ(直近１０大会)')
-            st.table(rating_data_disp[rating_data_disp["会員番号"] == kid].head(10))
+        # fallback: 二つ目のコードの抽出方式を使って会員番号を探す（テキストに "1234 name" 形式があれば）
+        if not kaiin and pasted_text:
+            name_dict = extract_name_dict(pasted_text)
+            kaiin = list(name_dict.keys())[:7]
+
+        # グラフ用に rating_data をコピーして氏名を反映
+        rd = rating_data.copy()
+        try:
+            rd["会員番号"] = rd["会員番号"].astype(int)
+        except:
+            pass
+        # 既に name_dict に含まれる名前を反映（ファイルのデータに存在する会員の氏名更新）
+        if name_dict:
+            for kid, nm in name_dict.items():
+                rd.loc[rd["会員番号"] == kid, "氏名"] = nm
+
+        if not kaiin:
+            st.warning("グラフに使用する会員が抽出できませんでした。貼り付けテキストの形式を確認してください。")
+        else:
+            # 会員ごとのデータ
+            rating_list = []
+            for kid in kaiin:
+                df_k = rd[rd["会員番号"] == kid].sort_values("日付")
+                rating_list.append(df_k)
+
+            # グラフ描画
+            fig, ax = plt.subplots()
+            colorlist = ["r", "g", "b", "c", "m", "y", "k"]
+
+            for j, df_k in enumerate(rating_list):
+                date = df_k["日付"]
+                ax.plot(date, df_k["レイティング"], marker="o", linestyle="solid",
+                        label=str(kaiin[j]),  # ★ 凡例を会員番号に
+                        color=colorlist[j % len(colorlist)])
+
+            # 軽微なスタイル設定（ggplot は描画前に使うのが好ましいが最低限の設定）
+            plt.rcParams["font.size"] = 12
+            ax.set_title("Rating Graph", fontsize=18)
+            ax.set_xlabel("date", fontsize=14)
+            ax.set_ylabel("Rating", fontsize=14)
+            ax.legend(loc="upper left", fontsize=10)
+            fig.set_figheight(6)
+            fig.set_figwidth(12)
+
+            dates = mdates.YearLocator()
+            dates_fmt = mdates.DateFormatter('%Y')
+            ax.xaxis.set_major_locator(dates)
+            ax.xaxis.set_major_formatter(dates_fmt)
+            try:
+                ax.set_xlim([datetime.datetime(year_s, 1, 1), datetime.datetime(year_l, 12, 31)])
+            except Exception:
+                pass
+            ax.grid(which="major", axis="x", alpha=0.6, linestyle="--", linewidth=1)
+            ax.grid(which="major", axis="y", alpha=0.6, linestyle="--", linewidth=1)
+            st.pyplot(fig)
+
+            # 年平均まとめ
+            st.write('レイティング　年平均比較表')
+            matome = ["会員番号", "氏名"] + list(range(year_s, year_l + 1))
+            temp = []
+            for j, df_k in enumerate(rating_list):
+                nen_heikin = [kaiin[j], name_dict.get(kaiin[j], rd.loc[rd["会員番号"] == kaiin[j], "氏名"].iat[0] if not name_dict.get(kaiin[j]) and not rd.loc[rd["会員番号"] == kaiin[j], "氏名"].empty else name_dict.get(kaiin[j], "不明"))]
+                for k in range(year_s, year_l + 1):
+                    try:
+                        nen_heikin.append(int(df_k[pd.DatetimeIndex(df_k["日付"]).year == k]["レイティング"].mean()))
+                    except:
+                        nen_heikin.append(0)
+                temp.append(nen_heikin)
+            nen_heikin_matome = pd.DataFrame(temp, columns=matome)
+            st.dataframe(nen_heikin_matome)
+
+            # 分析まとめ
+            st.write('分析データ')
+            stats = []
+            for j, df_k in enumerate(rating_list):
+                agaru = 0
+                sagaru = 0
+                agaruhi = pd.NaT
+                sagaruhi = pd.NaT
+                for i in range(len(df_k) - 1):
+                    try:
+                        diff = int(df_k["レイティング"].iloc[i+1]) - int(df_k["レイティング"].iloc[i])
+                    except Exception:
+                        continue
+                    if diff > agaru:
+                        agaru = diff
+                        agaruhi = df_k["日付"].iloc[i+1]
+                    if diff < sagaru:
+                        sagaru = diff
+                        sagaruhi = df_k["日付"].iloc[i+1]
+                if len(df_k) > 0:
+                    try:
+                        min_val = int(df_k["レイティング"].min())
+                        min_date = df_k[df_k["レイティング"] == df_k["レイティング"].min()]["日付"].iloc[0]
+                    except:
+                        min_val = 0
+                        min_date = pd.NaT
+                    try:
+                        max_val = int(df_k["レイティング"].max())
+                        max_date = df_k[df_k["レイティング"] == df_k["レイティング"].max()]["日付"].iloc[0]
+                    except:
+                        max_val = 0
+                        max_date = pd.NaT
+                    temp = [
+                        kaiin[j],
+                        name_dict.get(kaiin[j], rd.loc[rd["会員番号"] == kaiin[j], "氏名"].iat[0] if not name_dict.get(kaiin[j]) and not rd.loc[rd["会員番号"] == kaiin[j], "氏名"].empty else "不明"),
+                        len(df_k),
+                        min_val,
+                        min_date,
+                        max_val,
+                        max_date,
+                        agaru, agaruhi, sagaru, sagaruhi
+                    ]
+                else:
+                    temp = [kaiin[j], name_dict.get(kaiin[j], "不明"),
+                            0, 0, pd.NaT, 0, pd.NaT,
+                            0, pd.NaT, 0, pd.NaT]
+                stats.append(temp)
+
+            stats_matome = pd.DataFrame(stats, columns=[
+                "会員番号","氏名","出場回数","最低値","最低日","最高値","最高日",
+                "最大UP","UP日","最大DOWN","DOWN日"
+            ])
+            for col in ["最低日","最高日","UP日","DOWN日"]:
+                try:
+                    stats_matome[col] = pd.to_datetime(stats_matome[col]).dt.strftime('%Y-%m-%d')
+                except:
+                    stats_matome[col] = stats_matome[col].astype(str)
+            st.table(stats_matome)
+
+            # 個人データの表示（最新順）
+            rating_data_disp = rd.copy()
+            rating_data_disp["日付"] = rating_data_disp["日付"].dt.strftime('%Y-%m-%d')
+            rating_data_disp = rating_data_disp.sort_values('日付', ascending=False)
+            for idx, kid in enumerate(kaiin):
+                name = name_dict.get(kid, str(kid))
+                st.write(f'{name} の詳細データ(直近１０大会)')
+                st.table(rating_data_disp[rating_data_disp["会員番号"] == kid].head(10))
+                
+    else:
+        st.warning("先に入力を送信してください")
