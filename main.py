@@ -34,20 +34,21 @@ year_s = st.sidebar.number_input("開始年",2000,2040,2019)
 year_l = st.sidebar.number_input("終了年",2000,2040,latest_year)
 
 #会員ごとにデータをrating[]に格納
-rating = [[],[],[],[],[],[]]
-for i in range(6):
-    rating[i] = rating_data[rating_data["会員番号"] == kaiin[i]]
-#グラフの日付の設定
-#date=[]
+#rating = [[],[],[],[],[],[]]
 #for i in range(6):
-#    date.append([datetime.datetime.strptime(s,'%Y-%m-%d') for s in rating[i]["日付"]])
-# グラフの日付の設定（修正版）
+#    rating[i] = rating_data[rating_data["会員番号"] == kaiin[i]]
+# 会員ごとにデータを rating[] に格納（日付をdatetime化＋ソート）
+rating = [[], [], [], [], [], []]
+for i in range(6):
+    tmp = rating_data[rating_data["会員番号"] == kaiin[i]].copy()
+    tmp["日付"] = pd.to_datetime(tmp["日付"], errors="coerce")  # 日付をdatetime型に変換
+    tmp = tmp.sort_values("日付")  # 日付順にソート
+    rating[i] = tmp
+
+# グラフの日付リスト
 date = []
 for i in range(6):
-    # "日付" を pandas で datetime 型に変換
-    rating[i]["日付"] = pd.to_datetime(rating[i]["日付"], errors="coerce")
     date.append(rating[i]["日付"])
-
 
 colorlist = ["r", "g", "b", "c", "m", "y", "k", "w"]
 fig, ax = plt.subplots()
