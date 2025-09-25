@@ -9,11 +9,17 @@ import matplotlib.dates as mdates
 # データ読み込み
 rating_data = pd.read_csv("rating_data_all.csv", index_col=0)
 
-# 【修正】日付を統一して datetime 型へ変換（/ と - 両方に対応）
-rating_data["日付"] = pd.to_datetime(rating_data["日付"].astype(str), errors="coerce", infer_datetime_format=True)
+# 【修正】日付の区切りを「-」に統一してから datetime 変換
+rating_data["日付"] = rating_data["日付"].astype(str).str.replace(r"[/-]", "-", regex=True)
 
-# 【修正】変換できなかった行（NaT）を除外
+# 【修正】datetime に変換（失敗したものは NaT になる）
+rating_data["日付"] = pd.to_datetime(rating_data["日付"], errors="coerce")
+
+# NaT を除外
 rating_data = rating_data.dropna(subset=["日付"])
+
+# 🔽 ファイル全体を日付順にソートしておく
+rating_data = rating_data.sort_values("日付")
 
 # 更新日（最後の行の日付を文字列に変換）
 last = rating_data["日付"].max().strftime('%Y-%m-%d')  # max()のほうが確実
