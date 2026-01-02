@@ -11,6 +11,14 @@ import matplotlib.dates as mdates
 # =========================
 rating_data = pd.read_csv("rating_data_all.csv", index_col=0)
 
+#Debug
+st.write("CSV最終行（生データ）")
+st.write(rating_data.tail(5))
+
+st.write("CSVの日付最大値（変換前）")
+st.write(rating_data["日付"].max())
+
+
 # 日付区切り統一
 rating_data["日付"] = (
     rating_data["日付"]
@@ -172,3 +180,4 @@ for i in range(6):
     df = rating_data_display[rating_data_display["会員番号"] == kaiin[i]]
     if not df.empty:
         st.table(df)
+
