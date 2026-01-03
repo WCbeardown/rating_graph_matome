@@ -134,38 +134,59 @@ if rows:
 # 分析データ
 # =========================
 st.write('分析データ')
-
 stats = []
+
 for j in range(6):
-    if rating[j].empty:
+    if rating[j].empty or len(rating[j]) < 2:
         continue
 
-    diffs = rating[j]["レイティング"].diff()
+    df = rating[j].copy()
+    df = df.sort_values("日付")
+
+    diffs = df["レイティング"].diff()
 
     max_up = diffs.max()
     max_down = diffs.min()
 
-    up_date = rating[j].iloc[diffs.idxmax()]["日付"].strftime("%Y-%m-%d") if not np.isnan(max_up) else ""
-    down_date = rating[j].iloc[diffs.idxmin()]["日付"].strftime("%Y-%m-%d") if not np.isnan(max_down) else ""
+    up_date = (
+        df.loc[diffs.idxmax(), "日付"].strftime("%Y-%m-%d")
+        if pd.notna(max_up) and max_up > 0
+        else ""
+    )
 
-    stats.append([
+    down_date = (
+        df.loc[diffs.idxmin(), "日付"].strftime("%Y-%m-%d")
+        if pd.notna(max_down) and max_down < 0
+        else ""
+    )
+
+    temp = [
         kaiin[j],
-        len(rating[j]),
-        rating[j]["レイティング"].min(),
-        rating[j].loc[rating[j]["レイティング"].idxmin(), "日付"].strftime("%Y-%m-%d"),
-        rating[j]["レイティング"].max(),
-        rating[j].loc[rating[j]["レイティング"].idxmax(), "日付"].strftime("%Y-%m-%d"),
-        int(max_up) if not np.isnan(max_up) else 0,
+        len(df),
+        df["レイティング"].min(),
+        df.loc[df["レイティング"].idxmin(), "日付"].strftime("%Y-%m-%d"),
+        df["レイティング"].max(),
+        df.loc[df["レイティング"].idxmax(), "日付"].strftime("%Y-%m-%d"),
+        int(max_up) if pd.notna(max_up) else 0,
         up_date,
-        int(max_down) if not np.isnan(max_down) else 0,
+        int(max_down) if pd.notna(max_down) else 0,
         down_date
-    ])
+    ]
+
+    stats.append(temp)
 
 if stats:
-    st.table(pd.DataFrame(
+    stats_matome = pd.DataFrame(
         stats,
-        columns=["会員番号", "出場回数", "最低値", "最低日", "最高値", "最高日", "最大UP", "UP日", "最大DOWN", "DOWN日"]
-    ))
+        columns=[
+            "会員番号", "出場回数",
+            "最低値", "最低日",
+            "最高値", "最高日",
+            "最大UP", "UP日",
+            "最大DOWN", "DOWN日"
+        ]
+    )
+    st.table(stats_matome)
 
 # =========================
 # 個人データ表示（表示専用コピー）
@@ -180,5 +201,6 @@ for i in range(6):
     df = rating_data_display[rating_data_display["会員番号"] == kaiin[i]]
     if not df.empty:
         st.table(df)
+
 
 
